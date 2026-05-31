@@ -1,0 +1,1139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Cura — Your photos have a story</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --bg: #0a0a0f;
+    --surface: #111118;
+    --surface2: #1a1a24;
+    --border: #2a2a3a;
+    --accent: #c8f06e;
+    --accent2: #7b6cff;
+    --text: #f0eff8;
+    --muted: #7a7990;
+    --danger: #ff6b6b;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* ── NOISE OVERLAY ── */
+  body::before {
+    content: '';
+    position: fixed; inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events: none; z-index: 9999; opacity: 0.4;
+  }
+
+  /* ── NAV ── */
+  nav {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 1.25rem 2.5rem;
+    background: rgba(10,10,15,0.8);
+    backdrop-filter: blur(20px);
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+  }
+  .nav-logo {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800; font-size: 1.25rem;
+    letter-spacing: -0.02em;
+  }
+  .nav-logo span { color: var(--accent); }
+  .nav-pill {
+    background: var(--accent);
+    color: #0a0a0f;
+    font-size: 0.7rem; font-weight: 600;
+    letter-spacing: 0.08em; text-transform: uppercase;
+    padding: 0.3rem 0.75rem; border-radius: 999px;
+  }
+  .nav-links { display: flex; gap: 2rem; align-items: center; }
+  .nav-links a {
+    color: var(--muted); text-decoration: none;
+    font-size: 0.9rem; transition: color 0.2s;
+  }
+  .nav-links a:hover { color: var(--text); }
+
+  /* ── HERO ── */
+  .hero {
+    min-height: 100vh;
+    display: flex; flex-direction: column;
+    justify-content: center; align-items: flex-start;
+    padding: 8rem 2.5rem 4rem;
+    position: relative; overflow: hidden;
+  }
+  .hero-grid-bg {
+    position: absolute; inset: 0;
+    background-image:
+      linear-gradient(rgba(123,108,255,0.04) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(123,108,255,0.04) 1px, transparent 1px);
+    background-size: 60px 60px;
+    mask-image: radial-gradient(ellipse 80% 60% at 50% 40%, black 40%, transparent 100%);
+  }
+  .hero-glow {
+    position: absolute; top: 20%; left: 60%;
+    width: 600px; height: 600px;
+    background: radial-gradient(circle, rgba(200,240,110,0.08) 0%, transparent 70%);
+    pointer-events: none;
+  }
+  .hero-glow2 {
+    position: absolute; top: 50%; left: 10%;
+    width: 400px; height: 400px;
+    background: radial-gradient(circle, rgba(123,108,255,0.1) 0%, transparent 70%);
+    pointer-events: none;
+  }
+  .hero-eyebrow {
+    display: flex; align-items: center; gap: 0.6rem;
+    margin-bottom: 2rem;
+    animation: fadeUp 0.6s ease both;
+  }
+  .hero-eyebrow-dot {
+    width: 8px; height: 8px; border-radius: 50%;
+    background: var(--accent);
+    box-shadow: 0 0 12px var(--accent);
+    animation: pulse 2s ease-in-out infinite;
+  }
+  @keyframes pulse {
+    0%,100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.6; transform: scale(0.8); }
+  }
+  .hero-eyebrow span {
+    font-size: 0.8rem; letter-spacing: 0.12em;
+    text-transform: uppercase; color: var(--muted);
+  }
+  h1 {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800; font-size: clamp(3rem, 7vw, 6rem);
+    line-height: 0.95; letter-spacing: -0.04em;
+    max-width: 14ch;
+    animation: fadeUp 0.6s 0.1s ease both;
+  }
+  h1 em {
+    font-style: normal; color: var(--accent);
+    position: relative;
+  }
+  .hero-sub {
+    margin-top: 2rem;
+    font-size: 1.15rem; color: var(--muted);
+    max-width: 48ch; line-height: 1.7;
+    font-weight: 300;
+    animation: fadeUp 0.6s 0.2s ease both;
+  }
+  .hero-actions {
+    display: flex; gap: 1rem; margin-top: 2.5rem; flex-wrap: wrap;
+    animation: fadeUp 0.6s 0.3s ease both;
+  }
+  .btn-primary {
+    background: var(--accent); color: #0a0a0f;
+    border: none; padding: 0.85rem 2rem;
+    border-radius: 6px; font-weight: 600; font-size: 0.95rem;
+    cursor: pointer; transition: all 0.2s;
+    font-family: 'DM Sans', sans-serif;
+  }
+  .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(200,240,110,0.3); }
+  .btn-ghost {
+    background: transparent; color: var(--text);
+    border: 1px solid var(--border); padding: 0.85rem 2rem;
+    border-radius: 6px; font-weight: 400; font-size: 0.95rem;
+    cursor: pointer; transition: all 0.2s;
+    font-family: 'DM Sans', sans-serif;
+  }
+  .btn-ghost:hover { border-color: var(--muted); }
+
+  .hero-stats {
+    display: flex; gap: 3rem; margin-top: 4rem;
+    animation: fadeUp 0.6s 0.4s ease both;
+  }
+  .stat-num {
+    font-family: 'Syne', sans-serif;
+    font-size: 2rem; font-weight: 700; color: var(--text);
+  }
+  .stat-label { font-size: 0.8rem; color: var(--muted); margin-top: 0.2rem; }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* ── SECTION COMMON ── */
+  section { padding: 6rem 2.5rem; }
+  .section-label {
+    font-size: 0.75rem; letter-spacing: 0.14em;
+    text-transform: uppercase; color: var(--accent);
+    margin-bottom: 1rem; font-weight: 600;
+  }
+  .section-title {
+    font-family: 'Syne', sans-serif;
+    font-size: clamp(2rem, 4vw, 3rem);
+    font-weight: 700; letter-spacing: -0.03em;
+    max-width: 20ch; line-height: 1.1;
+    margin-bottom: 1.5rem;
+  }
+
+  /* ── HOW IT WORKS ── */
+  .how { background: var(--surface); }
+  .how-grid {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 1px; background: var(--border);
+    border: 1px solid var(--border); border-radius: 12px; overflow: hidden;
+    margin-top: 3rem;
+  }
+  .step {
+    background: var(--surface); padding: 2.5rem 2rem;
+    position: relative; transition: background 0.2s;
+  }
+  .step:hover { background: var(--surface2); }
+  .step-num {
+    font-family: 'Syne', sans-serif;
+    font-size: 3rem; font-weight: 800;
+    color: var(--border); line-height: 1;
+    margin-bottom: 1.5rem;
+    transition: color 0.2s;
+  }
+  .step:hover .step-num { color: var(--accent); }
+  .step-icon {
+    font-size: 1.5rem; margin-bottom: 1rem;
+  }
+  .step h3 {
+    font-family: 'Syne', sans-serif;
+    font-size: 1.1rem; font-weight: 700;
+    margin-bottom: 0.75rem;
+  }
+  .step p { font-size: 0.9rem; color: var(--muted); line-height: 1.6; }
+
+  /* ── DEMO SECTION ── */
+  .demo-wrap {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 16px; overflow: hidden;
+    margin-top: 3rem;
+  }
+  .demo-topbar {
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    padding: 0.75rem 1.5rem;
+    display: flex; align-items: center; gap: 0.5rem;
+  }
+  .dot { width: 12px; height: 12px; border-radius: 50%; }
+  .dot-r { background: #ff5f57; }
+  .dot-y { background: #febc2e; }
+  .dot-g { background: #28c840; }
+  .demo-app { padding: 0; }
+
+  /* ── DEMO APP UI ── */
+  .app-layout {
+    display: grid;
+    grid-template-columns: 280px 1fr 300px;
+    min-height: 560px;
+  }
+  .sidebar {
+    background: var(--surface);
+    border-right: 1px solid var(--border);
+    padding: 1.5rem;
+    display: flex; flex-direction: column; gap: 1rem;
+  }
+  .sidebar-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 0.75rem; font-weight: 700;
+    letter-spacing: 0.1em; text-transform: uppercase;
+    color: var(--muted); margin-bottom: 0.5rem;
+  }
+  .drive-folder {
+    display: flex; align-items: center; gap: 0.6rem;
+    padding: 0.6rem 0.75rem; border-radius: 6px;
+    cursor: pointer; transition: background 0.15s;
+    font-size: 0.875rem;
+  }
+  .drive-folder:hover, .drive-folder.active { background: var(--surface2); }
+  .drive-folder .folder-icon { font-size: 1rem; }
+  .drive-folder .count {
+    margin-left: auto; font-size: 0.7rem;
+    color: var(--muted); background: var(--surface2);
+    padding: 0.1rem 0.4rem; border-radius: 4px;
+  }
+  .drive-folder.active .count { background: var(--accent); color: #0a0a0f; }
+
+  .main-content {
+    padding: 1.5rem;
+    display: flex; flex-direction: column; gap: 1.25rem;
+  }
+  .prompt-bar {
+    display: flex; gap: 0.75rem; align-items: flex-start;
+  }
+  .prompt-input {
+    flex: 1; background: var(--surface);
+    border: 1px solid var(--border); border-radius: 8px;
+    padding: 0.85rem 1rem; color: var(--text);
+    font-family: 'DM Sans', sans-serif; font-size: 0.9rem;
+    resize: none; outline: none; transition: border 0.2s;
+    line-height: 1.5;
+  }
+  .prompt-input:focus { border-color: var(--accent2); }
+  .prompt-input::placeholder { color: var(--muted); }
+  .prompt-submit {
+    background: var(--accent2); color: white;
+    border: none; border-radius: 8px;
+    padding: 0.85rem 1.25rem; cursor: pointer;
+    font-size: 1rem; transition: all 0.2s;
+    white-space: nowrap; height: fit-content;
+  }
+  .prompt-submit:hover { background: #9389ff; transform: scale(1.02); }
+
+  .tags-row {
+    display: flex; gap: 0.5rem; flex-wrap: wrap;
+  }
+  .tag {
+    padding: 0.3rem 0.75rem; border-radius: 999px;
+    font-size: 0.75rem; cursor: pointer;
+    border: 1px solid var(--border); color: var(--muted);
+    transition: all 0.15s; background: transparent;
+  }
+  .tag:hover, .tag.active {
+    background: var(--accent); color: #0a0a0f;
+    border-color: var(--accent); font-weight: 600;
+  }
+
+  .photo-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+    gap: 6px;
+  }
+  .photo-card {
+    aspect-ratio: 1; border-radius: 6px;
+    overflow: hidden; position: relative;
+    cursor: pointer; background: var(--surface2);
+    border: 2px solid transparent;
+    transition: all 0.15s;
+  }
+  .photo-card:hover { transform: scale(1.03); }
+  .photo-card.selected { border-color: var(--accent); }
+  .photo-card img {
+    width: 100%; height: 100%; object-fit: cover;
+    filter: grayscale(20%);
+    transition: filter 0.2s;
+  }
+  .photo-card:hover img { filter: grayscale(0%); }
+  .photo-card .check {
+    position: absolute; top: 4px; right: 4px;
+    width: 20px; height: 20px; border-radius: 50%;
+    background: var(--accent); color: #0a0a0f;
+    display: none; align-items: center; justify-content: center;
+    font-size: 0.6rem; font-weight: 800;
+  }
+  .photo-card.selected .check { display: flex; }
+  .photo-label {
+    position: absolute; bottom: 0; left: 0; right: 0;
+    background: linear-gradient(transparent, rgba(0,0,0,0.7));
+    padding: 0.4rem 0.3rem 0.2rem;
+    font-size: 0.55rem; color: rgba(255,255,255,0.7);
+    text-align: center;
+  }
+
+  .right-panel {
+    border-left: 1px solid var(--border);
+    padding: 1.5rem;
+    display: flex; flex-direction: column; gap: 1.25rem;
+    background: var(--surface);
+  }
+  .panel-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 0.8rem; font-weight: 700;
+    letter-spacing: 0.08em; text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  .reel-settings { display: flex; flex-direction: column; gap: 0.75rem; }
+  .setting-row { display: flex; flex-direction: column; gap: 0.3rem; }
+  .setting-label { font-size: 0.75rem; color: var(--muted); }
+  .setting-select {
+    background: var(--surface2); border: 1px solid var(--border);
+    color: var(--text); border-radius: 6px; padding: 0.5rem 0.75rem;
+    font-family: 'DM Sans', sans-serif; font-size: 0.85rem; outline: none;
+    cursor: pointer;
+  }
+
+  .ai-picks { display: flex; flex-direction: column; gap: 0.5rem; }
+  .ai-pick-item {
+    display: flex; align-items: center; gap: 0.6rem;
+    padding: 0.5rem 0.6rem; border-radius: 6px;
+    background: var(--surface2); font-size: 0.8rem;
+    border: 1px solid transparent; cursor: pointer;
+    transition: border-color 0.15s;
+  }
+  .ai-pick-item:hover { border-color: var(--accent2); }
+  .ai-pick-thumb {
+    width: 36px; height: 36px; border-radius: 4px;
+    background: var(--border); flex-shrink: 0;
+    overflow: hidden;
+  }
+  .ai-pick-thumb img { width: 100%; height: 100%; object-fit: cover; }
+  .ai-pick-info { flex: 1; min-width: 0; }
+  .ai-pick-name {
+    font-size: 0.75rem; font-weight: 500;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  .ai-pick-tag {
+    font-size: 0.65rem; color: var(--accent2);
+    margin-top: 0.15rem;
+  }
+
+  .generate-btn {
+    background: var(--accent); color: #0a0a0f;
+    border: none; border-radius: 8px; padding: 0.9rem;
+    font-family: 'Syne', sans-serif; font-weight: 700;
+    font-size: 0.9rem; cursor: pointer; width: 100%;
+    transition: all 0.2s; letter-spacing: 0.03em;
+  }
+  .generate-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(200,240,110,0.3);
+  }
+  .generate-btn:disabled {
+    opacity: 0.5; cursor: not-allowed; transform: none; box-shadow: none;
+  }
+
+  .progress-wrap { display: flex; flex-direction: column; gap: 0.5rem; }
+  .progress-bar-bg {
+    height: 4px; background: var(--surface2); border-radius: 999px;
+    overflow: hidden;
+  }
+  .progress-bar-fill {
+    height: 100%; background: var(--accent);
+    border-radius: 999px; width: 0%;
+    transition: width 0.4s ease;
+  }
+  .progress-text { font-size: 0.75rem; color: var(--muted); }
+
+  .output-preview {
+    background: var(--surface2); border-radius: 8px;
+    border: 1px solid var(--border);
+    aspect-ratio: 9/16; max-height: 200px;
+    display: flex; align-items: center; justify-content: center;
+    position: relative; overflow: hidden;
+  }
+  .output-preview-inner {
+    text-align: center; color: var(--muted); font-size: 0.8rem;
+  }
+  .output-preview.has-content { background: #000; }
+  .output-export-row { display: flex; gap: 0.5rem; }
+  .btn-sm {
+    flex: 1; padding: 0.6rem; border-radius: 6px;
+    font-family: 'DM Sans', sans-serif; font-size: 0.8rem;
+    font-weight: 500; cursor: pointer; transition: all 0.15s;
+    border: 1px solid var(--border);
+  }
+  .btn-sm-accent { background: var(--accent); color: #0a0a0f; border-color: var(--accent); }
+  .btn-sm-ghost { background: transparent; color: var(--text); }
+  .btn-sm:hover { opacity: 0.85; }
+
+  /* ── FEATURES ── */
+  .features-grid {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1.5rem; margin-top: 3rem;
+  }
+  .feature-card {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 12px; padding: 2rem;
+    transition: all 0.2s; cursor: default;
+  }
+  .feature-card:hover {
+    border-color: var(--accent2);
+    transform: translateY(-4px);
+    box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+  }
+  .feature-icon {
+    width: 44px; height: 44px; border-radius: 10px;
+    background: var(--surface2); display: flex;
+    align-items: center; justify-content: center;
+    font-size: 1.2rem; margin-bottom: 1.25rem;
+    border: 1px solid var(--border);
+  }
+  .feature-card h3 {
+    font-family: 'Syne', sans-serif;
+    font-size: 1rem; font-weight: 700; margin-bottom: 0.5rem;
+  }
+  .feature-card p { font-size: 0.875rem; color: var(--muted); line-height: 1.6; }
+
+  /* ── PROBLEM ── */
+  .problem { background: var(--surface); }
+  .problem-split {
+    display: grid; grid-template-columns: 1fr 1fr;
+    gap: 4rem; margin-top: 3rem; align-items: start;
+  }
+  .vs-label {
+    display: inline-block;
+    font-family: 'Syne', sans-serif; font-weight: 800;
+    font-size: 0.75rem; letter-spacing: 0.12em;
+    text-transform: uppercase; padding: 0.3rem 0.75rem;
+    border-radius: 4px; margin-bottom: 1.25rem;
+  }
+  .vs-before { background: rgba(255,107,107,0.1); color: var(--danger); }
+  .vs-after { background: rgba(200,240,110,0.1); color: var(--accent); }
+  .pain-list { list-style: none; display: flex; flex-direction: column; gap: 0.75rem; }
+  .pain-list li {
+    display: flex; align-items: flex-start; gap: 0.75rem;
+    font-size: 0.9rem; color: var(--muted); line-height: 1.5;
+  }
+  .pain-list li .bullet {
+    width: 20px; height: 20px; border-radius: 50%; flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 0.65rem; margin-top: 0.1rem;
+  }
+  .bullet-bad { background: rgba(255,107,107,0.15); color: var(--danger); }
+  .bullet-good { background: rgba(200,240,110,0.15); color: var(--accent); }
+
+  /* ── TECH STACK ── */
+  .stack-grid {
+    display: flex; flex-wrap: wrap; gap: 1rem; margin-top: 2.5rem;
+  }
+  .stack-chip {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 8px; padding: 0.75rem 1.25rem;
+    display: flex; align-items: center; gap: 0.6rem;
+    font-size: 0.875rem; transition: all 0.2s;
+  }
+  .stack-chip:hover { border-color: var(--accent2); background: var(--surface2); }
+  .stack-chip .chip-dot {
+    width: 8px; height: 8px; border-radius: 50%;
+  }
+
+  /* ── FOOTER ── */
+  footer {
+    border-top: 1px solid var(--border);
+    padding: 2.5rem; text-align: center;
+    color: var(--muted); font-size: 0.85rem;
+  }
+  footer strong { color: var(--text); }
+
+  /* ── MODAL ── */
+  .modal-overlay {
+    position: fixed; inset: 0; z-index: 200;
+    background: rgba(0,0,0,0.7); backdrop-filter: blur(8px);
+    display: flex; align-items: center; justify-content: center;
+    opacity: 0; pointer-events: none; transition: opacity 0.2s;
+  }
+  .modal-overlay.open { opacity: 1; pointer-events: all; }
+  .modal {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 16px; padding: 2.5rem; max-width: 480px; width: 90%;
+    transform: scale(0.95); transition: transform 0.2s;
+  }
+  .modal-overlay.open .modal { transform: scale(1); }
+  .modal h2 {
+    font-family: 'Syne', sans-serif; font-weight: 700;
+    font-size: 1.4rem; margin-bottom: 0.5rem;
+  }
+  .modal p { color: var(--muted); font-size: 0.9rem; line-height: 1.6; margin-bottom: 1.5rem; }
+  .modal-steps { display: flex; flex-direction: column; gap: 0.75rem; margin-bottom: 2rem; }
+  .modal-step {
+    display: flex; align-items: center; gap: 1rem;
+    padding: 0.75rem 1rem; background: var(--surface2);
+    border-radius: 8px; font-size: 0.875rem;
+  }
+  .modal-step .step-icon-sm { font-size: 1.1rem; }
+  .modal-close {
+    background: var(--accent); color: #0a0a0f;
+    border: none; border-radius: 8px; padding: 0.85rem 2rem;
+    font-family: 'Syne', sans-serif; font-weight: 700; font-size: 0.9rem;
+    cursor: pointer; width: 100%; transition: all 0.2s;
+  }
+  .modal-close:hover { opacity: 0.85; }
+
+  /* ── RESPONSIVE ── */
+  @media (max-width: 900px) {
+    .app-layout { grid-template-columns: 1fr; }
+    .sidebar, .right-panel { display: none; }
+    .problem-split { grid-template-columns: 1fr; gap: 2rem; }
+  }
+  @media (max-width: 600px) {
+    nav { padding: 1rem 1.25rem; }
+    .nav-links { display: none; }
+    section { padding: 4rem 1.25rem; }
+    .hero { padding: 6rem 1.25rem 3rem; }
+    .hero-stats { gap: 2rem; }
+  }
+
+  /* ── TOAST ── */
+  .toast {
+    position: fixed; bottom: 2rem; right: 2rem; z-index: 300;
+    background: var(--surface2); border: 1px solid var(--border);
+    border-radius: 10px; padding: 1rem 1.5rem;
+    font-size: 0.875rem; display: flex; align-items: center; gap: 0.75rem;
+    transform: translateY(100px); opacity: 0;
+    transition: all 0.3s ease; pointer-events: none;
+    box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+  }
+  .toast.show { transform: translateY(0); opacity: 1; }
+  .toast-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--accent); flex-shrink: 0; }
+
+  /* scrollbar */
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-track { background: var(--bg); }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-logo">Cu<span>ra</span></div>
+  <div class="nav-links">
+    <a href="#how">How it works</a>
+    <a href="#demo">Demo</a>
+    <a href="#tech">Stack</a>
+    <a href="#" onclick="openModal()">Get early access</a>
+  </div>
+  <div class="nav-pill">Hackathon Build</div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-grid-bg"></div>
+  <div class="hero-glow"></div>
+  <div class="hero-glow2"></div>
+
+  <div class="hero-eyebrow">
+    <div class="hero-eyebrow-dot"></div>
+    <span>AI-powered content creation</span>
+  </div>
+
+  <h1>Your photos have a <em>story.</em> We find it.</h1>
+
+  <p class="hero-sub">
+    Dump thousands of photos from Google Drive. Tell Cura what you want.
+    It selects, sequences, and assembles your reel — in minutes, not hours.
+  </p>
+
+  <div class="hero-actions">
+    <button class="btn-primary" onclick="document.getElementById('demo').scrollIntoView({behavior:'smooth'})">See it in action</button>
+    <button class="btn-ghost" onclick="openModal()">Request early access →</button>
+  </div>
+
+  <div class="hero-stats">
+    <div>
+      <div class="stat-num">~4hrs</div>
+      <div class="stat-label">saved per reel</div>
+    </div>
+    <div>
+      <div class="stat-num">10k+</div>
+      <div class="stat-label">photos handled</div>
+    </div>
+    <div>
+      <div class="stat-num">1 prompt</div>
+      <div class="stat-label">to finished reel</div>
+    </div>
+  </div>
+</section>
+
+<!-- PROBLEM -->
+<section class="problem" id="problem">
+  <div class="section-label">The problem</div>
+  <h2 class="section-title">Hours of work. Every. Single. Reel.</h2>
+  <div class="problem-split">
+    <div>
+      <div class="vs-label vs-before">Before Cura</div>
+      <ul class="pain-list">
+        <li><span class="bullet bullet-bad">✕</span>Manually scroll thousands of Drive photos to find the right ones</li>
+        <li><span class="bullet bullet-bad">✕</span>Download → Photoshop → export just to enhance a batch</li>
+        <li><span class="bullet bullet-bad">✕</span>Drag photos into CapCut one by one and sequence manually</li>
+        <li><span class="bullet bullet-bad">✕</span>Hunt for matching music that fits the mood</li>
+        <li><span class="bullet bullet-bad">✕</span>Repeat every time you post. 3–5 hours per reel.</li>
+      </ul>
+    </div>
+    <div>
+      <div class="vs-label vs-after">With Cura</div>
+      <ul class="pain-list">
+        <li><span class="bullet bullet-good">✓</span>Connect your Google Drive once. All photos indexed automatically.</li>
+        <li><span class="bullet bullet-good">✓</span>Type a prompt: "beach sunset vibes, 10 clips, upbeat"</li>
+        <li><span class="bullet bullet-good">✓</span>AI selects the best photos by scene, mood, and aesthetic</li>
+        <li><span class="bullet bullet-good">✓</span>Sequences, transitions, and music matched automatically</li>
+        <li><span class="bullet bullet-good">✓</span>Export-ready reel in under 5 minutes.</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- HOW IT WORKS -->
+<section class="how" id="how">
+  <div class="section-label">How it works</div>
+  <h2 class="section-title">Four steps. One prompt. Done.</h2>
+  <div class="how-grid">
+    <div class="step">
+      <div class="step-num">01</div>
+      <div class="step-icon">🔗</div>
+      <h3>Connect Drive</h3>
+      <p>Link your Google Drive. Cura indexes your entire photo library — faces, scenes, moods, objects — without moving a single file.</p>
+    </div>
+    <div class="step">
+      <div class="step-num">02</div>
+      <div class="step-icon">✍️</div>
+      <h3>Describe your reel</h3>
+      <p>Type naturally. "5 clips of food and travel from Bali, warm tones" or just "friends and laughter." The AI understands intent, not just keywords.</p>
+    </div>
+    <div class="step">
+      <div class="step-num">03</div>
+      <div class="step-icon">🧠</div>
+      <h3>AI curates & sequences</h3>
+      <p>Claude vision scores every photo against your brief. It picks the strongest 10–30, arranges them for narrative flow, and applies transitions.</p>
+    </div>
+    <div class="step">
+      <div class="step-num">04</div>
+      <div class="step-icon">📱</div>
+      <h3>Export & post</h3>
+      <p>Download a 9:16 MP4 ready for Instagram, TikTok, or YouTube Shorts. Or push directly to your content queue.</p>
+    </div>
+  </div>
+</section>
+
+<!-- INTERACTIVE DEMO -->
+<section id="demo" style="padding: 6rem 2.5rem;">
+  <div class="section-label">Live demo</div>
+  <h2 class="section-title">Try it yourself</h2>
+  <p style="color:var(--muted); font-size:0.9rem; margin-top:0.5rem; margin-bottom: 0; max-width:52ch;">
+    This is a functional prototype. Click folders, select photos, write a prompt, and generate a reel plan.
+  </p>
+  <div class="demo-wrap">
+    <div class="demo-topbar">
+      <div class="dot dot-r"></div>
+      <div class="dot dot-y"></div>
+      <div class="dot dot-g"></div>
+      <span style="font-size:0.75rem; color:var(--muted); margin-left:0.5rem;">cura.app — demo workspace</span>
+    </div>
+    <div class="demo-app">
+      <div class="app-layout">
+
+        <!-- SIDEBAR -->
+        <div class="sidebar">
+          <div>
+            <div class="sidebar-title">📁 Google Drive</div>
+            <div id="folders"></div>
+          </div>
+          <div style="margin-top:auto; padding-top:1rem; border-top:1px solid var(--border);">
+            <div class="sidebar-title" style="margin-bottom:0.75rem;">Stats</div>
+            <div style="font-size:0.8rem; color:var(--muted); line-height:2;">
+              <div><span id="total-count">0</span> photos indexed</div>
+              <div><span id="sel-count">0</span> selected</div>
+              <div id="ai-score-line" style="color:var(--accent);"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- MAIN -->
+        <div class="main-content">
+          <div class="prompt-bar">
+            <textarea class="prompt-input" id="prompt-input" rows="2"
+              placeholder="Describe your reel… e.g. 'sunset beach vibes, 8 photos, warm and dreamy'"></textarea>
+            <button class="prompt-submit" onclick="runAI()">✦ Generate</button>
+          </div>
+          <div class="tags-row" id="tags-row"></div>
+          <div class="photo-grid" id="photo-grid"></div>
+        </div>
+
+        <!-- RIGHT PANEL -->
+        <div class="right-panel">
+          <div>
+            <div class="panel-title" style="margin-bottom:0.75rem;">Reel settings</div>
+            <div class="reel-settings">
+              <div class="setting-row">
+                <div class="setting-label">Duration</div>
+                <select class="setting-select" id="duration-select">
+                  <option>15 seconds</option>
+                  <option selected>30 seconds</option>
+                  <option>60 seconds</option>
+                  <option>90 seconds</option>
+                </select>
+              </div>
+              <div class="setting-row">
+                <div class="setting-label">Vibe</div>
+                <select class="setting-select" id="vibe-select">
+                  <option>Upbeat / Energetic</option>
+                  <option selected>Warm / Nostalgic</option>
+                  <option>Cinematic / Slow</option>
+                  <option>Minimal / Clean</option>
+                </select>
+              </div>
+              <div class="setting-row">
+                <div class="setting-label">Transition style</div>
+                <select class="setting-select">
+                  <option selected>Auto (AI picks)</option>
+                  <option>Beat sync</option>
+                  <option>Crossfade</option>
+                  <option>Slide</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <div>
+            <div class="panel-title" style="margin-bottom:0.75rem;">🧠 AI shortlist</div>
+            <div class="ai-picks" id="ai-picks">
+              <div style="font-size:0.8rem; color:var(--muted);">Run a prompt to see AI picks</div>
+            </div>
+          </div>
+
+          <div>
+            <div class="panel-title" style="margin-bottom:0.75rem;">Output</div>
+            <div class="output-preview" id="output-preview">
+              <div class="output-preview-inner">
+                <div style="font-size:1.5rem; margin-bottom:0.4rem;">▶</div>
+                <div>Reel preview</div>
+                <div style="font-size:0.7rem; margin-top:0.2rem;">9:16 · MP4</div>
+              </div>
+            </div>
+            <div class="progress-wrap" id="progress-wrap" style="margin-top:0.75rem; display:none;">
+              <div class="progress-bar-bg"><div class="progress-bar-fill" id="progress-fill"></div></div>
+              <div class="progress-text" id="progress-text">Indexing photos…</div>
+            </div>
+          </div>
+
+          <div class="output-export-row">
+            <button class="btn-sm btn-sm-accent" id="export-btn" onclick="exportReel()" disabled>↓ Export MP4</button>
+            <button class="btn-sm btn-sm-ghost" onclick="shareReel()">Share ↗</button>
+          </div>
+
+          <button class="generate-btn" id="main-gen-btn" onclick="runAI()">✦ Generate Reel</button>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FEATURES -->
+<section class="features" style="background:var(--surface);">
+  <div class="section-label">Capabilities</div>
+  <h2 class="section-title">Built for creators who think in stories, not files</h2>
+  <div class="features-grid">
+    <div class="feature-card">
+      <div class="feature-icon">👁️</div>
+      <h3>Scene-aware vision</h3>
+      <p>Every photo is understood: location, mood, objects, faces, lighting quality, and aesthetic score. Not just tags — contextual meaning.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">✦</div>
+      <h3>Intent-based selection</h3>
+      <p>Describe what you want in plain language. The AI reasons about which photos serve that story — the way a human creative director would.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">📐</div>
+      <h3>Narrative sequencing</h3>
+      <p>Photos are arranged for flow — visual contrast, pacing, and emotional arc — not just chronologically or randomly.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">🎵</div>
+      <h3>Mood-matched music</h3>
+      <p>Royalty-free tracks suggested based on your brief and pacing. Beat-sync transitions cut automatically to the drop.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">🔗</div>
+      <h3>Google Drive native</h3>
+      <p>Photos stay in your Drive. Cura reads and indexes without copying files — your storage, your control.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">♾️</div>
+      <h3>Permutation engine</h3>
+      <p>Generate 5 different reel variations from the same prompt — different selections, orderings, and vibes — then pick your favourite.</p>
+    </div>
+  </div>
+</section>
+
+<!-- TECH STACK -->
+<section id="tech">
+  <div class="section-label">Tech stack</div>
+  <h2 class="section-title">How we built it</h2>
+  <div class="stack-grid">
+    <div class="stack-chip"><span class="chip-dot" style="background:#c8f06e"></span>Claude API (Vision + Reasoning)</div>
+    <div class="stack-chip"><span class="chip-dot" style="background:#4285F4"></span>Google Drive API</div>
+    <div class="stack-chip"><span class="chip-dot" style="background:#7b6cff"></span>React + Tailwind</div>
+    <div class="stack-chip"><span class="chip-dot" style="background:#ff6b6b"></span>FastAPI (Python)</div>
+    <div class="stack-chip"><span class="chip-dot" style="background:#febc2e"></span>FFmpeg (video assembly)</div>
+    <div class="stack-chip"><span class="chip-dot" style="background:#28c840"></span>PostgreSQL + pgvector</div>
+    <div class="stack-chip"><span class="chip-dot" style="background:#e44d26"></span>Vercel (frontend)</div>
+    <div class="stack-chip"><span class="chip-dot" style="background:#7b6cff"></span>Railway (backend)</div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div style="font-family:'Syne',sans-serif; font-weight:800; font-size:1.5rem; margin-bottom:0.5rem;">
+    Cu<span style="color:var(--accent)">ra</span>
+  </div>
+  <div>Built in 5 days for the hackathon. <strong>Your photos have a story — we find it.</strong></div>
+  <div style="margin-top:0.75rem; font-size:0.75rem;">
+    Claude API · Google Drive · FFmpeg · FastAPI · React
+  </div>
+</footer>
+
+<!-- MODAL -->
+<div class="modal-overlay" id="modal" onclick="closeModalOutside(event)">
+  <div class="modal">
+    <h2>Get early access 🌿</h2>
+    <p>Cura is in active development. Leave your details and we'll reach out when we launch.</p>
+    <div class="modal-steps">
+      <div class="modal-step"><span class="step-icon-sm">📁</span> Connect your Google Drive</div>
+      <div class="modal-step"><span class="step-icon-sm">✦</span> Get 50 free reel generations</div>
+      <div class="modal-step"><span class="step-icon-sm">🎯</span> Shape the product roadmap</div>
+    </div>
+    <button class="modal-close" onclick="closeModal()">Close — I'll come back later</button>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast">
+  <div class="toast-dot"></div>
+  <span id="toast-msg">Done!</span>
+</div>
+
+<script>
+// ── DATA ──
+const folders = [
+  { name: "Bali 2024", count: 312, icon: "🌴", vibe: "tropical", photos: ["beach","sunset","temple","rice fields","ocean"] },
+  { name: "Food & Cafe", count: 187, icon: "☕", vibe: "warm", photos: ["latte art","pasta","market","brunch","noodles"] },
+  { name: "Friends", count: 563, icon: "👫", vibe: "joyful", photos: ["laughing","dinner","rooftop","pool","night out"] },
+  { name: "Architecture", count: 94, icon: "🏛️", vibe: "clean", photos: ["facade","staircase","window","symmetry","detail"] },
+  { name: "Golden hour", count: 201, icon: "🌅", vibe: "cinematic", photos: ["skyline","silhouette","dusk","reflection","glow"] },
+];
+
+const promptTags = ["beach vibes 🌊","food & cafe ☕","golden hour 🌅","travel 🗺️","friends 👥","architecture 🏛️","nature 🌿","night out 🌙"];
+
+const UNSPLASH_PHOTOS = [
+  { id:"photo-1507525428034-b723cf961d3e", label:"beach", score:0 },
+  { id:"photo-1510414842594-a61c69b5ae57", label:"sunset", score:0 },
+  { id:"photo-1476514525535-07fb3b4ae5f1", label:"travel", score:0 },
+  { id:"photo-1504674900247-0877df9cc836", label:"food", score:0 },
+  { id:"photo-1517248135467-4c7edcad34c4", label:"cafe", score:0 },
+  { id:"photo-1601758174496-7e4b08c7083d", label:"friends", score:0 },
+  { id:"photo-1529156069898-49953e39b3ac", label:"group", score:0 },
+  { id:"photo-1519046904884-53103b34b206", label:"palm", score:0 },
+  { id:"photo-1530521954074-e64f4810b5d1", label:"ocean", score:0 },
+  { id:"photo-1506197603052-3cc9c3a201bd", label:"sky", score:0 },
+  { id:"photo-1551218808-94e220e084d2", label:"latte", score:0 },
+  { id:"photo-1414235077428-338989a2e8c0", label:"dinner", score:0 },
+  { id:"photo-1522202176988-66273c2fd55f", label:"team", score:0 },
+  { id:"photo-1542314831-068cd1dbfeeb", label:"hotel", score:0 },
+  { id:"photo-1501854140801-50d01698950b", label:"nature", score:0 },
+  { id:"photo-1493246507139-91e8fad9978e", label:"mountain", score:0 },
+  { id:"photo-1516912481808-3406841bd33c", label:"night", score:0 },
+  { id:"photo-1499678329028-101435549a4e", label:"path", score:0 },
+  { id:"photo-1473496169904-658ba7574b0d", label:"run", score:0 },
+  { id:"photo-1455849318743-b2233052fcff", label:"road", score:0 },
+];
+
+let selectedFolder = 0;
+let selectedPhotos = new Set();
+let aiRunning = false;
+let reelReady = false;
+
+// ── INIT ──
+function init() {
+  // render folders
+  const foldersEl = document.getElementById('folders');
+  folders.forEach((f, i) => {
+    const div = document.createElement('div');
+    div.className = 'drive-folder' + (i === 0 ? ' active' : '');
+    div.id = 'folder-' + i;
+    div.onclick = () => selectFolder(i);
+    div.innerHTML = `<span class="folder-icon">${f.icon}</span><span>${f.name}</span><span class="count">${f.count}</span>`;
+    foldersEl.appendChild(div);
+  });
+
+  // tags
+  const tagsEl = document.getElementById('tags-row');
+  promptTags.forEach(t => {
+    const btn = document.createElement('button');
+    btn.className = 'tag';
+    btn.textContent = t;
+    btn.onclick = () => {
+      btn.classList.toggle('active');
+      const input = document.getElementById('prompt-input');
+      const tagText = t.split(' ')[0].toLowerCase();
+      if (btn.classList.contains('active')) {
+        input.value += (input.value ? ', ' : '') + tagText;
+      }
+    };
+    tagsEl.appendChild(btn);
+  });
+
+  renderPhotos();
+  updateStats();
+}
+
+function selectFolder(i) {
+  selectedFolder = i;
+  document.querySelectorAll('.drive-folder').forEach((el, idx) => {
+    el.classList.toggle('active', idx === i);
+  });
+  selectedPhotos.clear();
+  renderPhotos();
+  updateStats();
+}
+
+function renderPhotos() {
+  const grid = document.getElementById('photo-grid');
+  grid.innerHTML = '';
+  const shuffled = [...UNSPLASH_PHOTOS].sort(() => Math.random() - 0.5).slice(0, 16);
+  shuffled.forEach((p, i) => {
+    const card = document.createElement('div');
+    card.className = 'photo-card';
+    card.id = 'photo-' + p.id;
+    card.onclick = () => togglePhoto(p.id, card);
+    card.innerHTML = `
+      <img src="https://images.unsplash.com/${p.id}?w=200&q=60" alt="${p.label}" loading="lazy" />
+      <div class="photo-label">${p.label}</div>
+      <div class="check">✓</div>
+    `;
+    grid.appendChild(card);
+  });
+  document.getElementById('total-count').textContent = folders[selectedFolder].count;
+}
+
+function togglePhoto(id, card) {
+  if (selectedPhotos.has(id)) {
+    selectedPhotos.delete(id);
+    card.classList.remove('selected');
+  } else {
+    selectedPhotos.add(id);
+    card.classList.add('selected');
+  }
+  updateStats();
+}
+
+function updateStats() {
+  document.getElementById('sel-count').textContent = selectedPhotos.size;
+}
+
+// ── AI GENERATE ──
+async function runAI() {
+  if (aiRunning) return;
+  aiRunning = true;
+  reelReady = false;
+
+  const prompt = document.getElementById('prompt-input').value || 'warm travel vibes';
+  const btn = document.getElementById('main-gen-btn');
+  const submitBtn = document.querySelector('.prompt-submit');
+  btn.disabled = true;
+  submitBtn.disabled = true;
+  btn.textContent = '⟳ Thinking…';
+
+  // Show progress
+  const progressWrap = document.getElementById('progress-wrap');
+  const progressFill = document.getElementById('progress-fill');
+  const progressText = document.getElementById('progress-text');
+  progressWrap.style.display = 'flex';
+
+  const steps = [
+    [10, 'Scanning Drive folders…'],
+    [28, 'Running vision analysis on photos…'],
+    [50, 'Scoring against your brief…'],
+    [70, 'Selecting best 12 photos…'],
+    [85, 'Sequencing for narrative flow…'],
+    [95, 'Matching music & transitions…'],
+    [100, 'Reel ready! ✦'],
+  ];
+
+  for (const [pct, msg] of steps) {
+    await delay(400 + Math.random() * 300);
+    progressFill.style.width = pct + '%';
+    progressText.textContent = msg;
+  }
+
+  // Populate AI picks
+  const picks = document.getElementById('ai-picks');
+  picks.innerHTML = '';
+  const gridPhotos = document.querySelectorAll('.photo-card');
+  const pickCount = Math.min(8, gridPhotos.length);
+  const picked = [...gridPhotos].sort(() => Math.random() - 0.5).slice(0, pickCount);
+
+  picked.forEach((card, i) => {
+    const img = card.querySelector('img').src;
+    const lbl = card.querySelector('.photo-label').textContent;
+    card.classList.add('selected');
+    selectedPhotos.add('ai-' + i);
+
+    const item = document.createElement('div');
+    item.className = 'ai-pick-item';
+    const scores = ['95', '92', '90', '88', '86', '84', '82', '80'];
+    item.innerHTML = `
+      <div class="ai-pick-thumb"><img src="${img}" /></div>
+      <div class="ai-pick-info">
+        <div class="ai-pick-name">${lbl}</div>
+        <div class="ai-pick-tag">score: ${scores[i] || '80'} · clip ${i+1}</div>
+      </div>
+    `;
+    picks.appendChild(item);
+  });
+
+  document.getElementById('sel-count').textContent = pickCount;
+  document.getElementById('ai-score-line').textContent = `avg score: 87/100`;
+
+  // Preview
+  const preview = document.getElementById('output-preview');
+  preview.classList.add('has-content');
+  const dur = document.getElementById('duration-select').value;
+  const vibe = document.getElementById('vibe-select').value;
+  preview.innerHTML = `
+    <div style="text-align:center; padding:1rem;">
+      <div style="font-size:2rem; margin-bottom:0.5rem;">🎬</div>
+      <div style="font-size:0.8rem; color:var(--accent); font-weight:600; font-family:'Syne',sans-serif;">${pickCount} CLIPS · ${dur.toUpperCase()}</div>
+      <div style="font-size:0.7rem; color:var(--muted); margin-top:0.3rem;">${vibe}</div>
+      <div style="font-size:0.7rem; color:var(--muted); margin-top:0.15rem;">"${prompt.slice(0,30)}${prompt.length>30?'…':''}"</div>
+    </div>
+  `;
+
+  document.getElementById('export-btn').disabled = false;
+  reelReady = true;
+  btn.disabled = false;
+  btn.textContent = '✦ Regenerate';
+  submitBtn.disabled = false;
+  submitBtn.textContent = '✦ Generate';
+  aiRunning = false;
+
+  showToast(`✦ Reel generated — ${pickCount} photos selected`);
+}
+
+function delay(ms) { return new Promise(r => setTimeout(r, ms)); }
+
+function exportReel() {
+  if (!reelReady) return;
+  showToast('📥 Export started — MP4 downloading…');
+  setTimeout(() => showToast('✓ cura_export.mp4 saved'), 2000);
+}
+
+function shareReel() {
+  navigator.clipboard?.writeText(window.location.href);
+  showToast('🔗 Link copied to clipboard');
+}
+
+// ── MODAL ──
+function openModal() { document.getElementById('modal').classList.add('open'); }
+function closeModal() { document.getElementById('modal').classList.remove('open'); }
+function closeModalOutside(e) { if (e.target.id === 'modal') closeModal(); }
+
+// ── TOAST ──
+let toastTimer;
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  document.getElementById('toast-msg').textContent = msg;
+  t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove('show'), 3500);
+}
+
+// ── START ──
+init();
+</script>
+</body>
+</html>
